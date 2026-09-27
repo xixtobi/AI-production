@@ -1,69 +1,31 @@
-import Image from "next/image";
+import Link from "next/link";
+import { AppShell } from "@/components/app-shell";
+import { listProjects } from "@/lib/projects/service";
+import { projectTypes } from "@/lib/db/schema";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+const typeLabels: Record<(typeof projectTypes)[number], string> = {
+  ANIMATION_SERIES: "Serial Animasi", UGC_SERIES: "Serial UGC", YOUTUBE: "YouTube",
+  SHORT_FILM: "Film Pendek", ADVERTISEMENT: "Iklan", DOCUMENTARY: "Dokumenter", OTHER: "Lainnya",
+};
+
+const projectColors = ["tile-violet", "tile-blue", "tile-orange", "tile-green"];
+
+export default function ProjectsPage() {
+  const projects = listProjects();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <AppShell active="Proyek">
+      <div className="welcome-band"><div><span className="welcome-tag"><i /> RUANG KERJA LOKAL</span><h1>Produksi, <em>terkendali.</em></h1><p>Semua proyek video dan animasi, tertata di satu tempat.</p></div><div className="welcome-art" aria-hidden="true"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="art-core">▶</div><span className="art-star">✳</span><span className="art-dot dot-one"/><span className="art-dot dot-two"/></div></div>
+      <div className="section-heading"><div><p className="eyebrow">RUANG KERJA</p><h2>Proyek Anda <span className="count-chip">{projects.length}</span></h2></div><Link href="/projects/new" className="button button-primary"><span className="plus">＋</span> Proyek baru</Link></div>
+
+      {projects.length === 0 ? (
+        <section className="empty-state"><div className="empty-illustration"><span className="empty-sheet sheet-back"/><span className="empty-sheet sheet-front"><i/><i/><i/></span><span className="empty-spark">✳</span></div><p className="eyebrow">MULAI DARI SINI</p><h3>Belum ada proyek</h3><p>Buat proyek pertama untuk mulai mengatur produksi video Anda.</p><Link href="/projects/new" className="button button-primary">＋ Buat proyek pertama</Link></section>
+      ) : (
+        <div className="project-grid">{projects.map((project, index) => <Link href={`/projects/${project.id}`} className="project-card" key={project.id}><div className={`project-card-art ${projectColors[index % projectColors.length]}`}><span className="card-code">{project.code}</span><span className="card-glyph">{project.projectType === "ANIMATION_SERIES" ? "◌" : project.projectType === "UGC_SERIES" ? "◉" : "▧"}</span><span className="card-art-label">LOCAL PROJECT</span></div><div className="project-card-body"><div className="project-card-title"><h3>{project.name}</h3><span className="card-menu">•••</span></div><div className="project-card-meta"><span>{typeLabels[project.projectType]}</span><span className="tiny-dot"/><span>{project.defaultAspectRatio}</span></div><div className="project-card-bottom"><span className="status-pill compact"><i/> Belum dimulai</span><span className="project-arrow">↗</span></div></div></Link>)}<Link href="/projects/new" className="add-project-card"><span className="add-project-icon">＋</span><strong>Tambah proyek</strong><span>Atur ruang kerja baru</span></Link></div>
+      )}
+      <div className="storage-note"><span className="storage-icon">▣</span><span>Semua data proyek tersimpan di komputer ini.</span><span className="storage-path">DATABASE LOKAL <i/></span></div>
+    </AppShell>
   );
 }

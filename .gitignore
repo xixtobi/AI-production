@@ -19,6 +19,10 @@
 
 # production
 /build
+/.local-production-control/
+/tools/FolderPickerHelper/bin/
+/tools/FolderPickerHelper/obj/
+/drizzle/meta/_journal.json.tmp
 
 # misc
 .DS_Store

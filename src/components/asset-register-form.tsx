@@ -1,0 +1,9 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { assetTypes } from "@/lib/db/enums";
+export function AssetRegisterForm({ projectId }: { projectId: string }) {
+  const [error, setError] = useState(""); const [busy, setBusy] = useState(false); const router = useRouter();
+  async function submit(event: React.FormEvent<HTMLFormElement>) { event.preventDefault(); setBusy(true); setError(""); const data = Object.fromEntries(new FormData(event.currentTarget)); try { const response = await fetch(`/api/projects/${projectId}/assets`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }); const result = await response.json(); if (!response.ok) setError(result.error); else router.push(`/projects/${projectId}/assets/${result.asset.id}`); } catch { setError("Aset belum dapat disimpan."); } finally { setBusy(false); } }
+  return <form onSubmit={submit} className="form-card asset-form"><h2>Daftarkan aset yang sudah ada</h2><div className="form-grid"><label className="field"><span>Kode aset</span><input required name="assetCode" placeholder="KF-B08"/></label><label className="field"><span>Nama</span><input required name="name" placeholder="Keyframe shot 08"/></label><label className="field"><span>Jenis</span><select name="assetType">{assetTypes.map(type=><option key={type}>{type}</option>)}</select></label><label className="field"><span>Path relatif di folder root</span><input required name="relativePath" placeholder="EP01/SH008/KEYFRAME/KF-B08.png"/></label><label className="field field-wide"><span>Deskripsi</span><textarea name="description"/></label></div>{error&&<p className="form-error" role="alert">{error}</p>}<button className="button button-primary" disabled={busy}>{busy?"Mendaftarkan…":"Daftarkan file"}</button></form>;
+}
